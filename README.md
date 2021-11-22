@@ -2,7 +2,7 @@
 
 ### Synopsis
 
-The intent of this project is to compare the average imdb ratings between genres visualize the distribution of ratings for each genre in an effort to translate an IMDB rating to a genre specific ranking. 
+The intent of this project is to compare the average imdb ratings between genres and visualize the distribution of ratings for each genre in an effort to translate an IMDB rating to a genre specific ranking. 
 
 The 'title.basics.tsv' and 'title.ratings.tsv' data were sourced from IMDB's openly available [datasets](https://www.imdb.com/interfaces/) and the 'IMDB movies.csv' data was sourced from Stefano Leone's [IMDb extensive dataset](https://www.kaggle.com/stefanoleone992/imdb-extensive-dataset) to categorize films based on country of origin.
 

@@ -67,14 +67,14 @@ db = pd.read_sql(ratings_sql, cnxn)
 
 # Creating Table of Stats
 
-medianVals = {}
+medianVals = {'genre': [], 
+              'median': []}
 for genre in genres:
     genre_db = db[db.genres.str.contains(genre, regex=True, na=False)]
     genre_db['movierank'] = ((np.arange(len(genre_db))+1)/len(genre_db)*100).round(2)
     median = genre_db[genre_db.movierank<52][genre_db.movierank>48].averageRating.mean()
-#    medianVals[genre] = median
-    medianVals.setdefault('genre', []).append(genre)
-    medianVals.setdefault('median', []).append(median)
+    medianVals['genre'].append(genre)
+    medianVals['median'].append(median)
 
 medianVals = pd.DataFrame(medianVals).sort_values('median')
 
@@ -91,14 +91,17 @@ for genre in medianVals.genre:
     genre_db = genre_db.groupby('averageRating')['movierank'].mean()
     genre_db = genre_db.reset_index()
     ax.plot(genre_db.averageRating, genre_db.movierank, label=genre, alpha=0.4)
-    if genre == 'Western':
-        plt.legend(loc='center left', bbox_to_anchor=(1.05, 0.5))
-        plt.ylabel('Percent Rank')
-        plt.xlabel('User Rating')
-        plt.xticks(np.arange(0, 11, 1))
-        plt.yticks(np.arange(0, 101, 10))
-        plt.title('Rating Distribution')
-        plt.savefig('rating_distribution.png', dpi=600, bbox_inches='tight')
+
+g1 = ax.grid(b=True, which='major', linestyle='-', linewidth=0.5)
+g2 = ax.grid(b=True, which='minor', linestyle='-', linewidth=0.2)
+ax.minorticks_on()
+plt.legend(loc='center left', bbox_to_anchor=(1.05, 0.5))
+plt.ylabel('Percent Rank')
+plt.xlabel('User Rating')
+plt.xticks(np.arange(0, 11, 1))
+plt.yticks(np.arange(0, 101, 10))
+plt.title('Rating Distribution')
+plt.savefig('rating_distribution.png', dpi=600, bbox_inches='tight')
 
 
 

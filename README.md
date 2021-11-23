@@ -14,7 +14,7 @@ The python package `pyodbc` was then used to load the tables from this database 
 
 ### Results
 
-[Rating Distribution](./figures/rating_distribution.png)
+![Rating Distribution](./figures/rating_distribution.png)
 ---
 
 To do:

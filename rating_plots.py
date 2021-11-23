@@ -42,7 +42,6 @@ genres = [
     'Biography',
     'Comedy',
     'Crime',
-    'Documentary',
     'Drama',
     'Family',
     'Fantasy',
@@ -66,6 +65,19 @@ ORDER BY averageRating ASC, numVotes ASC;
 
 db = pd.read_sql(ratings_sql, cnxn)
 
+# Creating Table of Stats
+
+medianVals = {}
+for genre in genres:
+    genre_db = db[db.genres.str.contains(genre, regex=True, na=False)]
+    genre_db['movierank'] = ((np.arange(len(genre_db))+1)/len(genre_db)*100).round(2)
+    median = genre_db[genre_db.movierank<52][genre_db.movierank>48].averageRating.mean()
+#    medianVals[genre] = median
+    medianVals.setdefault('genre', []).append(genre)
+    medianVals.setdefault('median', []).append(median)
+
+medianVals = pd.DataFrame(medianVals).sort_values('median')
+
 NUM_COLORS = len(genres)
 
 cm = plt.get_cmap('gist_rainbow')
@@ -73,7 +85,7 @@ fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.set_prop_cycle('color', [cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
 
-for genre in genres:
+for genre in medianVals.genre:
     genre_db = db[db.genres.str.contains(genre, regex=True, na=False)]
     genre_db['movierank'] = ((np.arange(len(genre_db))+1)/len(genre_db)*100).round(2)
     genre_db = genre_db.groupby('averageRating')['movierank'].mean()
@@ -86,7 +98,7 @@ for genre in genres:
         plt.xticks(np.arange(0, 11, 1))
         plt.yticks(np.arange(0, 101, 10))
         plt.title('Rating Distribution')
-        plt.savefig('rating_distribution.png', dpi=200, bbox_inches='tight')
+        plt.savefig('rating_distribution.png', dpi=600, bbox_inches='tight')
 
 
 

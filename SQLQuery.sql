@@ -1,6 +1,5 @@
 
 -- Categorizing films based on "popularity" level
-
 SELECT tb.tconst, tb.primaryTitle, tb.titleType, tb.genres, tr.averageRating, tr.numVotes, --numVotes*averageRating AS metric,
 	CASE WHEN tr.numVotes > 100000 THEN 'high'
 			WHEN tr.numVotes > 50000 THEN 'medium'
@@ -27,7 +26,6 @@ AND tb.genres LIKE '%Drama%'
 AND numVotes > 10000;
 
 --Playing around with ROW_NUMBER() to get a percent ranking
-
 SELECT tb.tconst, tb.primaryTitle, tb.titleType, tb.genres, tr.averageRating, tr.numVotes, 
 	ROW_NUMBER() OVER (
 		ORDER BY averageRating ASC, numVotes ASC)/9635.0*100 AS percRank
@@ -38,7 +36,6 @@ WHERE (titleType = 'movie' OR titleType = 'tvMovie')
 AND numVotes > 10000;
 
 --Using actual PERCENT_RANK() function
-
 SELECT tb.tconst, tb.primaryTitle, tb.titleType, tb.genres, tr.averageRating, tr.numVotes, 
 	PERCENT_RANK() OVER (
 		ORDER BY averageRating ASC, numVotes ASC)*100 AS movierank
@@ -50,7 +47,6 @@ AND tb.genres LIKE '%Horror%'
 AND numVotes > 10000;
 
 -- Add country factor to control film location
-
 SELECT tb.tconst, tb.primaryTitle, tb.titleType, tb.genres, tr.averageRating, tr.numVotes, te.country,
 	PERCENT_RANK() OVER (
 		ORDER BY averageRating ASC, numVotes ASC)*100 AS movierank
@@ -65,7 +61,6 @@ AND te.country NOT LIKE '%India%'
 AND numVotes > 10000;
 
 -- Create View to categorize based on rating value
-
 CREATE VIEW HorrorRank AS
 SELECT tb.tconst, tb.primaryTitle, tb.titleType, tb.genres, tr.averageRating, tr.numVotes, te.country,
 	PERCENT_RANK() OVER (
@@ -80,28 +75,13 @@ AND te.country NOT LIKE '%India%'
 AND tb.genres LIKE '%Horror%'
 AND numVotes > 10000;
 
-CREATE VIEW HistoryRank AS
-SELECT tb.tconst, tb.primaryTitle, tb.titleType, tb.genres, tr.averageRating, tr.numVotes, te.country,
-	PERCENT_RANK() OVER (
-		ORDER BY averageRating ASC, numVotes ASC)*100 AS movierank
-FROM IMDBRatings..TitleRatings AS tr
-	LEFT JOIN IMDBRatings..TitleBasics AS tb
-		ON tr.tconst = tb.tconst
-	LEFT JOIN IMDBRatings..TitleExtras AS te
-		ON tb.tconst = te.imdb_title_id
-WHERE (titleType = 'movie' OR titleType = 'tvMovie')
-AND te.country NOT LIKE '%India%'
-AND tb.genres LIKE '%History%'
-AND numVotes > 10000;
 
 -- Group By movierank
-
 SELECT averageRating, AVG(movierank)
 FROM IMDBRatings..HorrorRank
 GROUP BY averageRating
 
 -- Show average rating per genre
-
 SELECT AVG(tr.averageRating)
 FROM IMDBRatings..TitleRatings AS tr
 	LEFT JOIN IMDBRatings..TitleBasics AS tb
@@ -112,6 +92,7 @@ WHERE (titleType = 'movie' OR titleType = 'tvMovie')
 AND te.country NOT LIKE '%India%'
 AND tb.genres LIKE '%History%'
 AND numVotes > 10000;
+-- Result: 7.16
 
 SELECT AVG(tr.averageRating)
 FROM IMDBRatings..TitleRatings AS tr
@@ -123,9 +104,32 @@ WHERE (titleType = 'movie' OR titleType = 'tvMovie')
 AND te.country NOT LIKE '%India%'
 AND tb.genres LIKE '%Horror%'
 AND numVotes > 10000;
+-- Result: 6.04
+
+-- Comparing Bollywood to Hollywood
+SELECT AVG(tr.averageRating)
+FROM IMDBRatings..TitleRatings AS tr
+	LEFT JOIN IMDBRatings..TitleBasics AS tb
+		ON tr.tconst = tb.tconst
+	LEFT JOIN IMDBRatings..TitleExtras AS te
+		ON tb.tconst = te.imdb_title_id
+WHERE (titleType = 'movie' OR titleType = 'tvMovie')
+AND te.country LIKE '%India%'
+AND numVotes > 10000;
+-- Result: 7.11
+
+SELECT AVG(tr.averageRating)
+FROM IMDBRatings..TitleRatings AS tr
+	LEFT JOIN IMDBRatings..TitleBasics AS tb
+		ON tr.tconst = tb.tconst
+	LEFT JOIN IMDBRatings..TitleExtras AS te
+		ON tb.tconst = te.imdb_title_id
+WHERE (titleType = 'movie' OR titleType = 'tvMovie')
+AND te.country LIKE '%USA%'
+AND numVotes > 10000;
+-- Result: 6.48
 
 -- Creating Genre column categories
-
 SELECT 
 	CASE WHEN tb.genres LIKE '%Horror%' THEN 'True' 
 		ELSE 'False' END
@@ -167,9 +171,21 @@ FROM IMDBRatings..TitleRatings AS tr
 		ON tb.tconst = te.imdb_title_id
 
 -- Creating views to plot results in python
+CREATE VIEW PopularRatings AS
+SELECT tb.tconst, tb.primaryTitle, tb.titleType, tb.genres, tr.averageRating, tr.numVotes, te.country
+FROM IMDBRatings..TitleRatings AS tr
+	LEFT JOIN IMDBRatings..TitleBasics AS tb
+		ON tr.tconst = tb.tconst
+	LEFT JOIN IMDBRatings..TitleExtras AS te
+		ON tb.tconst = te.imdb_title_id
+WHERE (titleType = 'movie' OR titleType = 'tvMovie')
+AND te.country NOT LIKE '%India%'
+AND numVotes > 10000
+-- ORDER BY averageRating ASC, numVotes ASC;
 
-CREATE VIEW TotalRank AS
 
+
+CREATE VIEW HistoryRank AS
 SELECT tb.tconst, tb.primaryTitle, tb.titleType, tb.genres, tr.averageRating, tr.numVotes, te.country,
 	PERCENT_RANK() OVER (
 		ORDER BY averageRating ASC, numVotes ASC)*100 AS movierank
@@ -180,5 +196,43 @@ FROM IMDBRatings..TitleRatings AS tr
 		ON tb.tconst = te.imdb_title_id
 WHERE (titleType = 'movie' OR titleType = 'tvMovie')
 AND te.country NOT LIKE '%India%'
--- AND tb.genres LIKE '%Horror%'
--- AND numVotes > 10000;
+AND tb.genres LIKE '%History%'
+AND numVotes > 10000;
+
+
+CREATE VIEW ActionRank AS
+
+CREATE VIEW AdventureRank AS
+
+CREATE VIEW AnimationRank AS
+
+CREATE VIEW BiographyRank AS
+
+CREATE VIEW ComedyRank AS
+
+CREATE VIEW 
+
+All movies 
+Action     
+Adventure  
+Animation  
+Biography  
+Comedy     
+Crime      
+Documentary
+Drama      
+Family     
+Fantasy    
+History    
+Horror     
+Music      
+Musical    
+Mystery    
+Reality TV 
+Romance    
+Sci-Fi     
+Short      
+Sport      
+Thriller   
+War        
+Western    

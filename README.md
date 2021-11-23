@@ -12,6 +12,9 @@ These three tables were loaded into Microsoft SQL Server which was used for expl
 
 The python package `pyodbc` was then used to load the tables from this database into `pandas` for visualization in `matplotlib`.
 
+### Results
+
+[Rating Distribution](./figures/rating_distribution.png)
 ---
 
 To do:

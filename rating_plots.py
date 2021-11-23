@@ -83,8 +83,10 @@ for genre in genres:
         plt.legend(loc='center left', bbox_to_anchor=(1.05, 0.5))
         plt.ylabel('Percent Rank')
         plt.xlabel('User Rating')
+        plt.xticks(np.arange(0, 11, 1))
+        plt.yticks(np.arange(0, 101, 10))
         plt.title('Rating Distribution')
-        plt.savefig('rating_distribution.png', dpi=600, bbox_inches='tight')
+        plt.savefig('rating_distribution.png', dpi=200, bbox_inches='tight')
 
 
 

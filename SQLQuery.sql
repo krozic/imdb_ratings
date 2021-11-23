@@ -75,6 +75,19 @@ AND te.country NOT LIKE '%India%'
 AND tb.genres LIKE '%Horror%'
 AND numVotes > 10000;
 
+CREATE VIEW HistoryRank AS
+SELECT tb.tconst, tb.primaryTitle, tb.titleType, tb.genres, tr.averageRating, tr.numVotes, te.country,
+	PERCENT_RANK() OVER (
+		ORDER BY averageRating ASC, numVotes ASC)*100 AS movierank
+FROM IMDBRatings..TitleRatings AS tr
+	LEFT JOIN IMDBRatings..TitleBasics AS tb
+		ON tr.tconst = tb.tconst
+	LEFT JOIN IMDBRatings..TitleExtras AS te
+		ON tb.tconst = te.imdb_title_id
+WHERE (titleType = 'movie' OR titleType = 'tvMovie')
+AND te.country NOT LIKE '%India%'
+AND tb.genres LIKE '%History%'
+AND numVotes > 10000;
 
 -- Group By movierank
 SELECT averageRating, AVG(movierank)
@@ -129,47 +142,6 @@ AND te.country LIKE '%USA%'
 AND numVotes > 10000;
 -- Result: 6.48
 
--- Creating Genre column categories
-SELECT 
-	CASE WHEN tb.genres LIKE '%Horror%' THEN 'True' 
-		ELSE 'False' END
-		AS horror,
-	CASE WHEN tb.genres LIKE '%Sci-Fi%' THEN 'True' 
-		ELSE 'False' END
-		AS scifi,
-	CASE WHEN tb.genres LIKE '%Crime%' THEN 'True' 
-		ELSE 'False' END
-		AS crime,
-	CASE WHEN tb.genres LIKE '%Drama%' THEN 'True' 
-		ELSE 'False' END
-		AS drama,
-	CASE WHEN tb.genres LIKE '%Romance%' THEN 'True' 
-		ELSE 'False' END
-		AS romance,
-	CASE WHEN tb.genres LIKE '%Action%' THEN 'True' 
-		ELSE 'False' END
-		AS action,
-	CASE WHEN tb.genres LIKE '%Adventure%' THEN 'True' 
-		ELSE 'False' END
-		AS adventure,
-	CASE WHEN tb.genres LIKE '%Comedy%' THEN 'True' 
-		ELSE 'False' END
-		AS comedy,
-	CASE WHEN tb.genres LIKE '%Thriller%' THEN 'True' 
-		ELSE 'False' END
-		AS thriller,
-	CASE WHEN tb.genres LIKE '%History%' THEN 'True' 
-		ELSE 'False' END
-		AS history,
-	CASE WHEN tb.genres LIKE '%Biography%' THEN 'True' 
-		ELSE 'False' END
-		AS biography
-FROM IMDBRatings..TitleRatings AS tr
-	LEFT JOIN IMDBRatings..TitleBasics AS tb
-		ON tr.tconst = tb.tconst
-	LEFT JOIN IMDBRatings..TitleExtras AS te
-		ON tb.tconst = te.imdb_title_id
-
 -- Creating views to plot results in python
 CREATE VIEW PopularRatings AS
 SELECT tb.tconst, tb.primaryTitle, tb.titleType, tb.genres, tr.averageRating, tr.numVotes, te.country
@@ -185,54 +157,83 @@ AND numVotes > 10000
 
 
 
-CREATE VIEW HistoryRank AS
-SELECT tb.tconst, tb.primaryTitle, tb.titleType, tb.genres, tr.averageRating, tr.numVotes, te.country,
-	PERCENT_RANK() OVER (
-		ORDER BY averageRating ASC, numVotes ASC)*100 AS movierank
-FROM IMDBRatings..TitleRatings AS tr
-	LEFT JOIN IMDBRatings..TitleBasics AS tb
-		ON tr.tconst = tb.tconst
-	LEFT JOIN IMDBRatings..TitleExtras AS te
-		ON tb.tconst = te.imdb_title_id
-WHERE (titleType = 'movie' OR titleType = 'tvMovie')
-AND te.country NOT LIKE '%India%'
-AND tb.genres LIKE '%History%'
-AND numVotes > 10000;
 
 
-CREATE VIEW ActionRank AS
 
-CREATE VIEW AdventureRank AS
+-- Creating Genre column categories
+--SELECT 
+--	CASE WHEN tb.genres LIKE '%Horror%' THEN 'True' 
+--		ELSE 'False' END
+--		AS horror,
+--	CASE WHEN tb.genres LIKE '%Sci-Fi%' THEN 'True' 
+--		ELSE 'False' END
+--		AS scifi,
+--	CASE WHEN tb.genres LIKE '%Crime%' THEN 'True' 
+--		ELSE 'False' END
+--		AS crime,
+--	CASE WHEN tb.genres LIKE '%Drama%' THEN 'True' 
+--		ELSE 'False' END
+--		AS drama,
+--	CASE WHEN tb.genres LIKE '%Romance%' THEN 'True' 
+--		ELSE 'False' END
+--		AS romance,
+--	CASE WHEN tb.genres LIKE '%Action%' THEN 'True' 
+--		ELSE 'False' END
+--		AS action,
+--	CASE WHEN tb.genres LIKE '%Adventure%' THEN 'True' 
+--		ELSE 'False' END
+--		AS adventure,
+--	CASE WHEN tb.genres LIKE '%Comedy%' THEN 'True' 
+--		ELSE 'False' END
+--		AS comedy,
+--	CASE WHEN tb.genres LIKE '%Thriller%' THEN 'True' 
+--		ELSE 'False' END
+--		AS thriller,
+--	CASE WHEN tb.genres LIKE '%History%' THEN 'True' 
+--		ELSE 'False' END
+--		AS history,
+--	CASE WHEN tb.genres LIKE '%Biography%' THEN 'True' 
+--		ELSE 'False' END
+--		AS biography
+--FROM IMDBRatings..TitleRatings AS tr
+--	LEFT JOIN IMDBRatings..TitleBasics AS tb
+--		ON tr.tconst = tb.tconst
+--	LEFT JOIN IMDBRatings..TitleExtras AS te
+--		ON tb.tconst = te.imdb_title_id
 
-CREATE VIEW AnimationRank AS
+--CREATE VIEW ActionRank AS
 
-CREATE VIEW BiographyRank AS
+--CREATE VIEW AdventureRank AS
 
-CREATE VIEW ComedyRank AS
+--CREATE VIEW AnimationRank AS
 
-CREATE VIEW 
+--CREATE VIEW BiographyRank AS
 
-All movies 
-Action     
-Adventure  
-Animation  
-Biography  
-Comedy     
-Crime      
-Documentary
-Drama      
-Family     
-Fantasy    
-History    
-Horror     
-Music      
-Musical    
-Mystery    
-Reality TV 
-Romance    
-Sci-Fi     
-Short      
-Sport      
-Thriller   
-War        
-Western    
+--CREATE VIEW ComedyRank AS
+
+--CREATE VIEW 
+
+--All movies 
+--Action     
+--Adventure  
+--Animation  
+--Biography  
+--Comedy     
+--Crime      
+--Documentary
+--Drama      
+--Family     
+--Fantasy    
+--History    
+--Horror     
+--Music      
+--Musical    
+--Mystery    
+--Reality TV 
+--Romance    
+--Sci-Fi     
+--Short      
+--Sport      
+--Thriller   
+--War        
+--Western    

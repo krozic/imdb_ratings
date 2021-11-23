@@ -20,5 +20,5 @@ The python package `pyodbc` was then used to load the tables from this database 
 To do:
 
 - Make a table for all other genres
-- Create line plots containing each genre
+- ~~Create line plots containing each genre~~
 - Create table of genre rating means

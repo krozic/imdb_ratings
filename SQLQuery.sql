@@ -152,8 +152,66 @@ FROM IMDBRatings..TitleRatings AS tr
 		ON tb.tconst = te.imdb_title_id
 WHERE (titleType = 'movie' OR titleType = 'tvMovie')
 AND te.country NOT LIKE '%India%'
-AND numVotes > 10000
+AND numVotes > 10000;
 -- ORDER BY averageRating ASC, numVotes ASC;
+
+
+-- Exploring AVG values between media types
+SELECT DISTINCT tb.titleType
+FROM IMDBRatings..TitleRatings AS tr
+	LEFT JOIN IMDBRatings..TitleBasics AS tb
+		ON tr.tconst = tb.tconst
+	LEFT JOIN IMDBRatings..TitleExtras AS te
+		ON tb.tconst = te.imdb_title_id
+WHERE numVotes > 10000;
+--Result: 
+	--video
+	--tvShort
+	--tvMovie
+	--videoGame
+	--short
+	--movie
+	--tvSeries
+	--tvMiniSeries
+	--tvSpecial
+	--tvEpisode
+
+SELECT AVG(tr.averageRating)
+FROM IMDBRatings..TitleRatings AS tr
+	LEFT JOIN IMDBRatings..TitleBasics AS tb
+		ON tr.tconst = tb.tconst
+	LEFT JOIN IMDBRatings..TitleExtras AS te
+		ON tb.tconst = te.imdb_title_id
+WHERE numVotes > 10000
+AND (tb.titleType = 'movie' OR tb.titleType = 'tvMovie');
+-- Result: 6.65
+
+SELECT AVG(tr.averageRating)
+FROM IMDBRatings..TitleRatings AS tr
+	LEFT JOIN IMDBRatings..TitleBasics AS tb
+		ON tr.tconst = tb.tconst
+	LEFT JOIN IMDBRatings..TitleExtras AS te
+		ON tb.tconst = te.imdb_title_id
+WHERE numVotes > 10000
+AND (tb.titleType = 'tvSeries' OR tb.titleType = 'tvMiniSeries');
+-- Result: 7.73
+
+-- Normally, episodes receive ~10x less votes than the show rating
+-- This approximately gathers episodes of comparable popularity
+SELECT AVG(tr.averageRating)
+FROM IMDBRatings..TitleRatings AS tr
+	LEFT JOIN IMDBRatings..TitleBasics AS tb
+		ON tr.tconst = tb.tconst
+	LEFT JOIN IMDBRatings..TitleExtras AS te
+		ON tb.tconst = te.imdb_title_id
+WHERE numVotes > 1000
+AND tb.titleType = 'tvEpisode';
+-- Result: 8.15
+
+
+
+
+
 
 
 

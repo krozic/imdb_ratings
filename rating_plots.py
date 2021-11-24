@@ -34,7 +34,6 @@ cnxn = pyodbc.connect(CONNECTION_STRING)
 cursor = cnxn.cursor()
 
 # Creating genres list
-
 genres = [
     'Action',
     'Adventure',
@@ -66,34 +65,42 @@ ORDER BY averageRating ASC, numVotes ASC;
 db = pd.read_sql(ratings_sql, cnxn)
 
 # Creating Table of Stats
-
-medianVals = {'genre': [], 
-              'median': []}
+genreVals = {'genre': [], 
+              'median': [],
+              'top_20perc': [],
+              'num_films': []}
 for genre in genres:
     genre_db = db[db.genres.str.contains(genre, regex=True, na=False)]
+    num_films = len(genre_db)
+    top_20perc = genre_db.averageRating.quantile(q=0.8)
     genre_db['movierank'] = ((np.arange(len(genre_db))+1)/len(genre_db)*100).round(2)
     median = genre_db[genre_db.movierank<52][genre_db.movierank>48].averageRating.mean()
-    medianVals['genre'].append(genre)
-    medianVals['median'].append(median)
+    genreVals['genre'].append(genre)
+    genreVals['median'].append(median)
+    genreVals['top_20perc'].append(top_20perc)
+    genreVals['num_films'].append(num_films)
 
-medianVals = pd.DataFrame(medianVals).sort_values('median')
+genreVals = pd.DataFrame(genreVals).sort_values('median')
+genreVals_table = tabulate(genreVals, 
+                           headers='keys', 
+                           tablefmt='pipe', 
+                           showindex='never')
 
+# Creating plot with custom 
 NUM_COLORS = len(genres)
-
 cm = plt.get_cmap('gist_rainbow')
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.set_prop_cycle('color', [cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
-
-for genre in medianVals.genre:
+for genre in genreVals.genre:
     genre_db = db[db.genres.str.contains(genre, regex=True, na=False)]
     genre_db['movierank'] = ((np.arange(len(genre_db))+1)/len(genre_db)*100).round(2)
     genre_db = genre_db.groupby('averageRating')['movierank'].mean()
     genre_db = genre_db.reset_index()
     ax.plot(genre_db.averageRating, genre_db.movierank, label=genre, alpha=0.4)
 
-g1 = ax.grid(b=True, which='major', linestyle='-', linewidth=0.5)
-g2 = ax.grid(b=True, which='minor', linestyle='-', linewidth=0.2)
+g1 = ax.grid(b=True, which='major', linestyle='-')
+g2 = ax.grid(b=True, which='minor', linestyle='-', linewidth=0.4)
 ax.minorticks_on()
 plt.legend(loc='center left', bbox_to_anchor=(1.05, 0.5))
 plt.ylabel('Percent Rank')
@@ -101,7 +108,7 @@ plt.xlabel('User Rating')
 plt.xticks(np.arange(0, 11, 1))
 plt.yticks(np.arange(0, 101, 10))
 plt.title('Rating Distribution')
-plt.savefig('rating_distribution.png', dpi=600, bbox_inches='tight')
+plt.savefig('rating_distribution.png', dpi=200, bbox_inches='tight')
 
 
 

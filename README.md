@@ -40,10 +40,11 @@ To do:
 - ~~Make a table for genres~~
 - ~~Create line plots containing each genre~~
 - ~~Create table of genre rating means~~
-- Create 
+- Add data on TV
+- Add description of results
 
 ### Method
 
-These three tables were loaded into Microsoft SQL Server which was used for exploratory data analysis and subsequent creation of the tables necessary for visualization.
+The three tables were loaded into Microsoft SQL Server which was used for exploratory data analysis and subsequent creation of the tables necessary for visualization.
 
 The python package `pyodbc` was then used to load the tables from this database into `pandas` for visualization in `matplotlib`.

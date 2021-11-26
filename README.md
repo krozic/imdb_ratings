@@ -6,12 +6,6 @@ The intent of this project is to compare the average imdb ratings between genres
 
 The 'title.basics.tsv' and 'title.ratings.tsv' data were sourced from IMDB's openly available [datasets](https://www.imdb.com/interfaces/) and the 'IMDB movies.csv' data was sourced from Stefano Leone's [IMDb extensive dataset](https://www.kaggle.com/stefanoleone992/imdb-extensive-dataset) to categorize films based on country of origin.
 
-### Method
-
-These three tables were loaded into Microsoft SQL Server which was used for exploratory data analysis and subsequent creation of the tables necessary for visualization.
-
-The python package `pyodbc` was then used to load the tables from this database into `pandas` for visualization in `matplotlib`.
-
 ### Results
 
 ![Rating Distribution](./figures/rating_distribution.png)
@@ -43,6 +37,13 @@ The python package `pyodbc` was then used to load the tables from this database 
 
 To do:
 
-- Make a table for all other genres
+- ~~Make a table for genres~~
 - ~~Create line plots containing each genre~~
-- Create table of genre rating means
+- ~~Create table of genre rating means~~
+- Create 
+
+### Method
+
+These three tables were loaded into Microsoft SQL Server which was used for exploratory data analysis and subsequent creation of the tables necessary for visualization.
+
+The python package `pyodbc` was then used to load the tables from this database into `pandas` for visualization in `matplotlib`.

@@ -7,6 +7,7 @@ Created on Mon Nov 22 01:12:34 2021
 import pyodbc
 import numpy as np
 import pandas as pd
+from tabulate import tabulate
 import matplotlib.pyplot as plt
 plt.style.use('ggplot')
 

@@ -87,7 +87,7 @@ genreVals_table = tabulate(genreVals,
                            tablefmt='pipe', 
                            showindex='never')
 
-# Creating plot with custom 
+# Creating plot with custom color categories
 NUM_COLORS = len(genres)
 cm = plt.get_cmap('gist_rainbow')
 fig = plt.figure()

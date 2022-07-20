@@ -208,9 +208,28 @@ WHERE numVotes > 1000
 AND tb.titleType = 'tvEpisode';
 -- Result: 8.15
 
+-- Exploring ratings by year
+SELECT tb.startYear, AVG(tr.averageRating), COUNT(tb.startYear)
+FROM IMDBRatings..TitleRatings AS tr
+	LEFT JOIN IMDBRatings..TitleBasics AS tb
+		ON tr.tconst = tb.tconst
+	LEFT JOIN IMDBRatings..TitleExtras AS te
+		ON tb.tconst = te.imdb_title_id
+--WHERE numVotes > 10000
+GROUP BY tb.startYear
+ORDER BY tb.startYear;
 
-
-
+SELECT tb.startYear, tb.primaryTitle, tr.averageRating, te.country
+FROM IMDBRatings..TitleRatings AS tr
+	LEFT JOIN IMDBRatings..TitleBasics AS tb
+		ON tr.tconst = tb.tconst
+	LEFT JOIN IMDBRatings..TitleExtras AS te
+		ON tb.tconst = te.imdb_title_id
+WHERE numVotes > 10000
+--AND te.country NOT LIKE '%India%'
+AND tb.startYear LIKE '2021'
+ORDER BY tr.averageRating DESC
+--AND tb.startYear = '1921';
 
 
 

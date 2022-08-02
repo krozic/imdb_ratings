@@ -2,4 +2,7 @@ data/
 venv/
 .idea/
 __pycache__/
+previous_versions/
+tables/old/
+my_secrets.py
 README2.md

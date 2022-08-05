@@ -3,13 +3,14 @@ import plotly.graph_objects as go
 import pandas as pd
 from typing import Dict, Any
 
-# with open('./tables/genre_rank.csv', 'r') as filehandle:
-#     genre_rank = pd.read_csv(filehandle)
-#
-# with open('./tables/genre_medians.csv', 'r') as filehandle:
-#     genre_medians = pd.read_csv(filehandle)
-#
-def plot_genre_dist(genre_rank: pd.DataFrame, genre_medians: pd.DataFrame):
+def plot_genre_dist(rank_tables: Dict[str, pd.DataFrame], rating_choice: str):
+    rating_name = {
+        'imdb': 'IMDB',
+        'rt': 'Tomatometer',
+        'mc': 'Metascore'
+    }
+    genre_rank = rank_tables[f'{rating_choice}_genre_rank']
+    genre_medians = rank_tables[f'{rating_choice}_genre_medians']
     fig = go.Figure()
     genres = genre_medians['genre']
     color_pal = px.colors.sample_colorscale('Turbo_r', len(genres))
@@ -25,16 +26,23 @@ def plot_genre_dist(genre_rank: pd.DataFrame, genre_medians: pd.DataFrame):
                                  )
                       )
     fig.update_layout(
-        title='Rating Distribution',
+        title=f'{rating_name[rating_choice]} Rating Distribution',
         xaxis_title='User Rating',
         yaxis_title='Percent Rank',
         font=dict(
-            size=18,
+            size=16,
         )
     )
     return fig
 
-def plot_movie_rank(movie_info: Dict[str, Any], movie_rank: pd.DataFrame, genre_rank: pd.DataFrame, genre_medians: pd.DataFrame, rating_choice: str):
+def plot_movie_rank(movie_info: Dict[str, Any], movie_rank: pd.DataFrame, rank_tables: Dict[str, pd.DataFrame], rating_choice: str, isolate_query: bool):
+    rating_name = {
+        'imdb': 'IMDB',
+        'rt': 'Tomatometer',
+        'mc': 'Metascore'
+    }
+    genre_rank = rank_tables[f'{rating_choice}_genre_rank']
+    genre_medians = rank_tables[f'{rating_choice}_genre_medians']
     fig = go.Figure()
     genres = genre_medians['genre']
     color_pal = px.colors.sample_colorscale('Turbo_r', len(genres))
@@ -50,9 +58,10 @@ def plot_movie_rank(movie_info: Dict[str, Any], movie_rank: pd.DataFrame, genre_
                                  )
                       )
 
-    genres = list(movie_rank['Genre'])
-    fig.for_each_trace(lambda trace: trace.update(visible='legendonly')
-    if trace.name not in genres else ())
+    if isolate_query:
+        genres = list(movie_rank['Genre'])
+        fig.for_each_trace(lambda trace: trace.update(visible='legendonly')
+        if trace.name not in genres else ())
     x = []
     for genre in genres:
         x.append(movie_info[rating_choice])
@@ -69,11 +78,12 @@ def plot_movie_rank(movie_info: Dict[str, Any], movie_rank: pd.DataFrame, genre_
                              mode='markers',
                              marker=dict(size=[10, 10, 10], color=[3, 3, 3])))
     fig.update_layout(
-        title='Rating Distribution',
+        title=f'{rating_name[rating_choice]} Rating Distribution',
         xaxis_title='User Rating',
         yaxis_title='Percent Rank',
         font=dict(
-            size=18,
+            size=16,
         )
     )
     return fig
+

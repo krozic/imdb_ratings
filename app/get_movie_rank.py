@@ -8,8 +8,10 @@ import re
 from typing import Dict, Any
 
 def get_movie_info(url: str) -> Dict[str, Any]:
-    '''Takes an IMDB movie url and returns
-     the rating (imdb, rt, and mc), genres, title, and poster link in a Dict'''
+    """
+    Takes an IMDB movie url and returns
+    the rating (imdb, rt, and mc), genres, title, and poster link in a Dict
+    """
 
     movie_info = {}
     uClient = uReq(url)
@@ -62,13 +64,14 @@ def get_movie_info(url: str) -> Dict[str, Any]:
     poster_link = re.search('src=".*jpg"', str(poster_text)).group()
     movie_info['poster'] = poster_link[5:len(poster_link)-1]
 
-
     return movie_info
 # print(get_movie_info('https://www.imdb.com/title/tt10954984/?ref_=fn_al_tt_1'))
 
 def get_movie_rank(movie_info: Dict[str, Any], rank_tables: Dict[str, pd.DataFrame]) -> pd.DataFrame:
-    '''Takes a movie_info Dict and rank_tables Dict of DataFrames
-    Returns the ranking for each genre for each rating system'''
+    """
+    Takes a movie_info Dict and rank_tables Dict of DataFrames
+    Returns the ranking for each genre for each rating system
+    """
 
     ranks = []
     movie_rank = pd.DataFrame({'Genre': movie_info['genres']})
@@ -96,6 +99,19 @@ def get_movie_rank(movie_info: Dict[str, Any], rank_tables: Dict[str, pd.DataFra
         movie_rank['Metascore Rank'] = ranks
 
     return movie_rank.sort_values('IMDB Rank', ascending=False)
+
+
+def highlight_rating(rating_choice: str) -> Dict:
+    """
+    Takes the rating_choice and returns the className for application formatting.
+    """
+    highlighter = {
+        'imdb': '',
+        'rt': '',
+        'mc': '',
+        rating_choice: 'bg-secondary text-white'
+    }
+    return highlighter
 
 # url = 'https://www.imdb.com/title/tt3704428/?ref_=tt_rvi_tt_i_5'
 # url = 'https://www.imdb.com/title/tt7144666/?ref_=hm_wls_tt_i_1'

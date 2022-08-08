@@ -7,12 +7,14 @@ import requests
 import re
 from typing import Dict, Any
 
-def get_movie_info(url: str) -> Dict[str, Any]:
+def get_movie_info(url: str, query: bool = False) -> Dict[str, Any]:
     """
     Takes an IMDB movie url and returns
     the rating (imdb, rt, and mc), genres, title, and poster link in a Dict
     """
 
+    if query:
+        url = f'https://www.imdb.com/title/{url}/'
     movie_info = {}
     uClient = uReq(url)
     page_html = uClient.read()
@@ -23,6 +25,7 @@ def get_movie_info(url: str) -> Dict[str, Any]:
     movie_info['imdb'] = float(page_soup.find('div', {'data-testid': 'hero-rating-bar__aggregate-rating'}).find('span').get_text())
 
     movie = re.search('tt[0-9]+', url).group()
+    # movie = query_choice
     r = requests.get(
         f'http://www.omdbapi.com/?i={movie}&apikey={api_key}')
     data = r.json()
@@ -65,7 +68,6 @@ def get_movie_info(url: str) -> Dict[str, Any]:
     movie_info['poster'] = poster_link[5:len(poster_link)-1]
 
     return movie_info
-# print(get_movie_info('https://www.imdb.com/title/tt10954984/?ref_=fn_al_tt_1'))
 
 def get_movie_rank(movie_info: Dict[str, Any], rank_tables: Dict[str, pd.DataFrame]) -> pd.DataFrame:
     """

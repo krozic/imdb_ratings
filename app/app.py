@@ -80,14 +80,17 @@ query_group = dbc.Row(
         html.Div(
             [
                 html.Br(),
-                dbc.RadioItems(
-                    id='query_choice',
-                    # className='btn-group-vertical',
-                    # inputClassName='btn-check',
-                    # labelClassName='btn btn-light btn-outline-primary',
-                    labelCheckedClassName='active',
-                    options=[],
-                    value=1,
+                dbc.Spinner(
+                    children=dbc.RadioItems(
+                        id='query_choice',
+                        # className='btn-group-vertical',
+                        # inputClassName='btn-check',
+                        # labelClassName='btn btn-light btn-outline-primary',
+                        labelCheckedClassName='active',
+                        options=[],
+                        value=1,
+                    ),
+                    color='primary',
                 ),
                 html.Div(id='output2'),
                 # dbc.Button('Search', id='submit-query', n_clicks=0, color='secondary', className='me-1'),
@@ -182,7 +185,7 @@ sidebar = html.Div(
     [
         sidebar_title,
         html.Br(),
-        chosen_movie,
+        dbc.Spinner(chosen_movie, color='primary'),
         html.Br(),
         html.Br(),
         # html.Hr(),

@@ -5,6 +5,7 @@ import dash
 from dash import dcc, html, dash_table
 from dash.dependencies import Input, Output, State
 import pandas as pd
+import numpy as np
 import dash_bootstrap_components as dbc
 
 # import data:
@@ -15,15 +16,16 @@ rank_tables = {}
 for name in table_names:
     rank_tables[name] = pd.read_csv(f'./tables/{name}.csv')
 
-rating_name = {
-    'imdb': 'IMDB',
-    'rt': 'Tomatometer',
-    'mc': 'Metascore'
-}
-
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
 server = app.server
 
+
+sidebar_title = dbc.Row(
+    [
+        html.H3("Film Search", className="display-6"),
+    ],
+    style={"height": "5vh"}, className='bg-primary text-white'
+)
 
 chosen_movie = dbc.Row(
     [
@@ -35,7 +37,14 @@ chosen_movie = dbc.Row(
         ),
         dbc.Col(
             [
-                html.Img(id='poster', src='')
+                html.A(
+                    id='poster_href',
+                    href='',
+                    target='_blank',
+                    children=[
+                        html.Img(id='poster', src='')
+                    ],
+                ),
             ],
             width=7
         ),
@@ -113,6 +122,28 @@ url_search = dbc.Row(
     ]
 )
 
+accordion = html.Div(
+    [
+        dbc.Accordion(
+            [
+                dbc.AccordionItem(
+                    query_group,
+                    title="Search Query",
+                    item_id="query",
+                ),
+                dbc.AccordionItem(
+                    url_search,
+                    title="IMDB URL Search",
+                    item_id="url",
+                ),
+            ],
+            id="accordion",
+            active_item="query",
+        ),
+        html.Div(id="accordion-contents", className="mt-3"),
+    ]
+)
+
 plot_settings = dbc.Row(
     [
         html.Div(id='system_label', children='Choose Rating System:'),
@@ -140,40 +171,12 @@ plot_settings = dbc.Row(
     ],
 )
 
-accordion = html.Div(
-    [
-        dbc.Accordion(
-            [
-                dbc.AccordionItem(
-                    query_group,
-                    title="Search Query",
-                    item_id="query",
-                ),
-                dbc.AccordionItem(
-                    url_search,
-                    title="IMDB URL Search",
-                    item_id="url",
-                ),
-            ],
-            id="accordion",
-            active_item="query",
-        ),
-        html.Div(id="accordion-contents", className="mt-3"),
-    ]
-)
-
-sidebar_title = dbc.Row(
-    [
-        html.H3("Film Search", className="display-6"),
-    ],
-    style={"height": "5vh"}, className='bg-primary text-white'
-)
-
 references = dbc.Row(
     [
         html.Div(
             [
-                html.A(href='https://github.com/krozic/imdb_ratings',
+                html.A(href='https://github.com/krozic/imdb_ratings/tree/main/app',
+                       target='_blank',
                        children='Source code can be found on my github')
             ],
         ),
@@ -262,7 +265,12 @@ app.layout = dbc.Container(
                                                           'past_url': 0,
                                                           'most_recent': '',
                                                           'accordion': ''
-                                                          })
+                                                          }
+                          ),
+                dcc.Store(id='movie_store', data={'current_movie': '',
+                                                  'movie_info': {}
+                                                  }
+                          ),
             ]
         ),
     ],
@@ -298,8 +306,10 @@ def update_choices(data, accordion, query_clicks, query_input, n_clicks):
     [Output('tbl1', 'children'),
      # Output('tbl', 'data'),
      # Output('tbl', 'columns'),
+     Output('movie_store', 'data'),
      Output('movie_title', 'children'),
      Output('poster', 'src'),
+     Output('poster_href', 'href'),
      Output('imdb_rating', 'children'),
      Output('imdb_rating', 'className'),
      Output('rt_rating', 'children'),
@@ -308,6 +318,7 @@ def update_choices(data, accordion, query_clicks, query_input, n_clicks):
      Output('mc_rating', 'className'),
      Output('ratings_distribution', 'figure')],
     Input('intermediate_values', 'data'),
+    Input('movie_store', 'data'),
     Input('submit-val', 'n_clicks'),
     Input('rating_choice', 'value'),
     Input('isolate_query', 'value'),
@@ -317,22 +328,28 @@ def update_choices(data, accordion, query_clicks, query_input, n_clicks):
     State('url_input', 'value'),
 )
 
-def update_output(data, n_clicks, rating_choice, isolate_query, query_input, query_clicks, query_choice, url_input):
+def update_output(data, movie_store, n_clicks, rating_choice, isolate_query, query_input, query_clicks, query_choice, url_input):
     if (n_clicks == 0) and (query_clicks == 0):
         fig = plot_genre_dist(rank_tables, rating_choice)
-        return '', '', '', '', '', '', '', '', '', fig
+        return '', movie_store, '', '', '', '', '', '', '', '', '', fig
     else:
-        url = url_input
         highlighter = highlight_rating(rating_choice)
         if data['accordion'] == 'query':
-            movie_info = get_movie_info(query_choice, query=True)
+            if query_choice != movie_store['current_movie']:
+                movie_store['current_movie'] = query_choice
+                movie_store['movie_info'] = get_movie_info(query_choice, query=True)
         elif data['accordion'] == 'url':
-            movie_info = get_movie_info(url)
+            if url_input != movie_store['current_movie']:
+                movie_store['current_movie'] = url_input
+                movie_store['movie_info'] = get_movie_info(url_input)
+        movie_info = movie_store['movie_info']
         movie_rank = get_movie_rank(movie_info, rank_tables)
         fig = plot_movie_rank(movie_info, movie_rank, rank_tables, rating_choice, isolate_query)
         return dbc.Table.from_dataframe(movie_rank, hover=True), \
+               movie_store, \
                movie_info['title'], \
                movie_info['poster'], \
+               movie_info['url'], \
                f'IMDB: {movie_info["imdb"]}', highlighter['imdb'], \
                f'RT: {movie_info["rt"]}', highlighter['rt'], \
                f'MC: {movie_info["mc"]}', highlighter['mc'], \

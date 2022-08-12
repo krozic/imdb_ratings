@@ -4,6 +4,10 @@ import pandas as pd
 from typing import Dict, Any
 
 def plot_genre_dist(rank_tables: Dict[str, pd.DataFrame], rating_choice: str):
+    """
+    Takes rank_tables Dict of dataframes and rating_choice as input.
+    Returns a plot of rating distribution categorized by genre, colored by median.
+    """
     rating_name = {
         'imdb': 'IMDB',
         'rt': 'Tomatometer',
@@ -36,6 +40,10 @@ def plot_genre_dist(rank_tables: Dict[str, pd.DataFrame], rating_choice: str):
     return fig
 
 def plot_movie_rank(movie_info: Dict[str, Any], movie_rank: pd.DataFrame, rank_tables: Dict[str, pd.DataFrame], rating_choice: str, isolate_query: bool):
+    """
+    Uses movie_info and movie_rank to plot the films rating and genre to visualize how it ranks in its genres.
+    isolate_query is used to plot only the traces for the films genres
+    """
     rating_name = {
         'imdb': 'IMDB',
         'rt': 'Tomatometer',

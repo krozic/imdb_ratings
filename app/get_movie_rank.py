@@ -9,8 +9,8 @@ from typing import Dict, Any
 
 def get_movie_info(url: str, query: bool = False) -> Dict[str, Any]:
     """
-    Takes an IMDB movie url and returns
-    the rating (imdb, rt, and mc), genres, title, and poster link in a Dict
+    Takes an IMDB movie url or tconst query result and returns
+    the rating (imdb, rt, and mc), genres, title, poster link and IMDB link in a Dict
     """
 
     if query:
@@ -25,7 +25,6 @@ def get_movie_info(url: str, query: bool = False) -> Dict[str, Any]:
     movie_info['imdb'] = float(page_soup.find('div', {'data-testid': 'hero-rating-bar__aggregate-rating'}).find('span').get_text())
 
     movie = re.search('tt[0-9]+', url).group()
-    # movie = query_choice
     r = requests.get(
         f'http://www.omdbapi.com/?i={movie}&apikey={api_key}')
     data = r.json()
@@ -66,6 +65,7 @@ def get_movie_info(url: str, query: bool = False) -> Dict[str, Any]:
     poster_text = page_soup.find('img', {'class':'ipc-image'})
     poster_link = re.search('src=".*jpg"', str(poster_text)).group()
     movie_info['poster'] = poster_link[5:len(poster_link)-1]
+    movie_info['url'] = url
 
     return movie_info
 
@@ -84,6 +84,10 @@ def get_movie_rank(movie_info: Dict[str, Any], rank_tables: Dict[str, pd.DataFra
         ranks.append(genre_rank.loc[genre_rank['rating'] == rating, [genre]].values[0][0])
     movie_rank['IMDB Rank'] = ranks
 
+    if movie_info['rt'] == None:
+        movie_info['rt'] = np.nan
+    if movie_info['mc'] == None:
+        movie_info['mc'] = np.nan
     if not np.isnan(movie_info['rt']):
         ranks = []
         rating = movie_info['rt']
